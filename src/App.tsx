@@ -10,6 +10,8 @@ import { useSendTransaction } from 'wagmi'
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import React, {type ReactNode} from 'react'
 import { cookieToInitialState, WagmiProvider, type Config } from "wagmi"
+
+import { MetaMaskUIProvider } from "@metamask/sdk-react-ui";
 import './App.css'
 import { parseEther } from 'viem'
 
@@ -47,7 +49,18 @@ function App() {
     <>
         <WagmiProvider config={wagmiAdapter.wagmiConfig}>
             <QueryClientProvider client={queryClient}>
-                <CustomComponent />
+            <MetaMaskUIProvider
+                sdkOptions={{
+                    dappMetadata: {
+                    name: "Example React UI Dapp",
+                    url: window.location.href,
+                    },
+                    infuraAPIKey: process.env.INFURA_API_KEY,
+                    // Other options
+                }}
+                >
+                    <CustomComponent />
+                </MetaMaskUIProvider>
             </QueryClientProvider>
         </WagmiProvider>
     </>

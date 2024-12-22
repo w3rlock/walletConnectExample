@@ -1,21 +1,36 @@
-import { useSendTransaction, useWriteContract, useAccount, useReadContract, useWaitForTransactionReceipt   } from 'wagmi'
+import { useSendTransaction, useWriteContract, useAccount, useReadContract, useWaitForTransactionReceipt, useSwitchChain     } from 'wagmi'
 import { parseEther, parseUnits, parseAbi } from 'viem'
 import  abiSale  from '../../abi.json'
 import  usdtPolAbi  from '../../usdtPolAbi.json'
 import { config } from "../../config"
-import { waitForTransactionReceipt } from '@wagmi/core'
+import { waitForTransactionReceipt, signMessage } from '@wagmi/core'
+import { useAppKitNetwork } from "@reown/appkit/react";
 
+import {
+    MetaMaskButton,
+    useSDK,
+    useSignMessage,
+  } from "@metamask/sdk-react-ui"
 
 export const CustomComponent = () => {
   const { sendTransaction } = useSendTransaction()
   const { writeContract, data: hash, isPending, writeContractAsync } = useWriteContract()
   const { address } = useAccount()
+  const { switchChain, chains } = useSwitchChain()
   const result = useReadContract({
     abi: abiSale,
     address: '0x24689DC23088E84ad17537E92717a4928474eCAF',
     functionName: 'getUserTokens',
     args: [1, address]
 })
+
+
+// const { caipNetwork, caipNetworkId, chainId, switchNetwork } = useAppKitNetwork()
+
+// console.log("network: " + caipNetwork)
+// console.log("caipNetworkId: " + caipNetworkId)
+// console.log("chainId: " + chainId)
+
 
 const buyTokens = async () => {
     try {
@@ -50,6 +65,11 @@ const buyTokens = async () => {
 }
 
 
+const sign = async () => {
+    const result = await signMessage(config, {message: "zaebal"})
+    console.log(result)
+}
+
 
   let balance
 
@@ -70,7 +90,21 @@ const buyTokens = async () => {
             }>
             Smart contract write
             </button>
+            <button onClick={() =>
+                sign()
+            }>
+                Sign message
+            </button>
+            <div>
+            {chains.map((chain) => (
+                <button key={chain.id} onClick={() => switchChain({ chainId: chain.id })}>
+                {chain.name}
+                </button>
+                ))}
+            </div>  
+            <appkit-network-button />
             <p></p>
+            <MetaMaskButton theme={"light"} color="white"></MetaMaskButton>
         </>
     )
 }
